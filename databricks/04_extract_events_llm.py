@@ -75,7 +75,7 @@ def parse_json(text):
 
 
 existing = spark.table(TARGET).select("document_id") if spark.catalog.tableExists(TARGET) else None
-pending = spark.table(SOURCE)
+pending = spark.table(SOURCE).filter(F.col("source_id") != "CVM_IPE")
 if existing is not None:
     pending = pending.join(existing, "document_id", "left_anti")
 documents = pending.orderBy(F.desc("published_at")).limit(MAX_DOCUMENTS).collect()
