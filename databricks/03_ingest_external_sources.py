@@ -29,10 +29,10 @@ BRONZE_SCHEMA = parameter("schema_bronze", "risksense_bronze", "Schema Bronze")
 MAX_COMPANIES = int(parameter("max_companies", "20", "Máximo de empresas"))
 MAX_RESULTS = int(parameter("max_results_per_query", "25", "Resultados/consulta"))
 LOOKBACK_DAYS = int(parameter("lookback_days", "7", "Janela em dias"))
-ENABLE_GDELT = parameter("enable_gdelt", "true", "GDELT").lower() == "true"
+ENABLE_GDELT = parameter("enable_gdelt", "false", "GDELT (fallback)").lower() == "true"
 ENABLE_NEWS_RSS = parameter("enable_news_rss", "false", "Google News RSS (somente se autorizado)").lower() == "true"
 ENABLE_CUSTOM_RSS = parameter("enable_custom_rss", "true", "RSS configurável").lower() == "true"
-ENABLE_GAZETTES = parameter("enable_gazettes", "true", "Querido Diário").lower() == "true"
+ENABLE_GAZETTES = parameter("enable_gazettes", "false", "Querido Diário (fallback)").lower() == "true"
 ENABLE_SANCTIONS = parameter("enable_sanctions", "false", "CEIS/CNEP/CEPIM").lower() == "true"
 SECRET_SCOPE = parameter("secret_scope", "risksense", "Secret scope")
 
@@ -230,9 +230,29 @@ defaults = [
     ("REGULATOR_RSS", "REGULATORY_NOTICE", "RSS", None, "SOURCE_DEPENDENT", .90, False, False, None, "CVM/BCB/CADE/agências"),
     ("LICENSED_NEWS_API", "LICENSED_NEWS", "JSON_API", None, "LICENSED", .85, False, True, "licensed_news_api_key", "Provedor contratado"),
     ("LICENSED_LEGAL_API", "LEGAL_EVENT", "JSON_API", None, "LICENSED", .90, False, True, "licensed_legal_api_key", "Provedor jurídico"),
+    ("RSS_VALOR", "BUSINESS_NEWS", "RSS", "https://valor.globo.com/rss/valor/", "RSS_METADATA", .85, True, False, None, "Valor Econômico"),
+    ("RSS_EXAME", "BUSINESS_NEWS", "RSS", "https://exame.com/feed/", "RSS_METADATA", .80, True, False, None, "Exame"),
+    ("RSS_BRAZIL_JOURNAL", "BUSINESS_NEWS", "RSS", "https://braziljournal.com/feed/", "RSS_METADATA", .85, True, False, None, "Brazil Journal"),
+    ("RSS_MONEY_TIMES", "BUSINESS_NEWS", "RSS", "https://www.moneytimes.com.br/feed/", "RSS_METADATA", .75, True, False, None, "Money Times"),
+    ("RSS_NEOFEED", "BUSINESS_NEWS", "RSS", "https://neofeed.com.br/feed/", "RSS_METADATA", .80, True, False, None, "NeoFeed"),
+    ("RSS_INVESTNEWS", "BUSINESS_NEWS", "RSS", "https://investnews.com.br/feed/", "RSS_METADATA", .75, True, False, None, "InvestNews"),
+    ("RSS_EINVESTIDOR", "BUSINESS_NEWS", "RSS", "https://einvestidor.estadao.com.br/feed/", "RSS_METADATA", .80, True, False, None, "E-Investidor"),
+    ("RSS_FORBES_BR", "BUSINESS_NEWS", "RSS", "https://forbes.com.br/feed/", "RSS_METADATA", .75, True, False, None, "Forbes Brasil"),
+    ("RSS_G1_ECONOMIA", "GENERAL_ECONOMY_NEWS", "RSS", "https://g1.globo.com/rss/g1/economia/", "RSS_METADATA", .80, True, False, None, "G1 Economia"),
+    ("RSS_UOL_ECONOMIA", "GENERAL_ECONOMY_NEWS", "RSS", "https://rss.uol.com.br/feed/economia.xml", "RSS_METADATA", .75, True, False, None, "UOL Economia"),
+    ("RSS_BBC_BRASIL", "GENERAL_NEWS", "RSS", "https://feeds.bbci.co.uk/portuguese/rss.xml", "RSS_METADATA", .85, True, False, None, "BBC News Brasil"),
+    ("RSS_PODER360", "POLITICAL_REGULATORY_NEWS", "RSS", "https://www.poder360.com.br/feed/", "RSS_METADATA", .75, True, False, None, "Poder360"),
+    ("RSS_CANALTECH", "TECHNOLOGY_NEWS", "RSS", "https://canaltech.com.br/rss/", "RSS_METADATA", .70, True, False, None, "Canaltech"),
+    ("RSS_TECNOBLOG", "TECHNOLOGY_NEWS", "RSS", "https://tecnoblog.net/feed/", "RSS_METADATA", .70, True, False, None, "Tecnoblog"),
 ]
+seed_sources = spark.createDataFrame(defaults, CONFIG_SCHEMA)
 if not spark.catalog.tableExists(CONFIG_TABLE):
-    spark.createDataFrame(defaults, CONFIG_SCHEMA).write.format("delta").mode("overwrite").saveAsTable(CONFIG_TABLE)
+    seed_sources.write.format("delta").mode("overwrite").saveAsTable(CONFIG_TABLE)
+else:
+    # Adiciona novas fontes sem sobrescrever ajustes feitos no Databricks.
+    (DeltaTable.forName(spark, CONFIG_TABLE).alias("target")
+     .merge(seed_sources.alias("source"), "target.source_id = source.source_id")
+     .whenNotMatchedInsertAll().execute())
 
 companies = [x.asDict() for x in spark.table(f"{CORE}.companies").limit(MAX_COMPANIES).collect()]
 configs = [x.asDict() for x in spark.table(CONFIG_TABLE).collect()]
