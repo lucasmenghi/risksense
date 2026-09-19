@@ -39,7 +39,8 @@ candidates = (events.alias("e").crossJoin(F.broadcast(aliases.alias("a")))
         (F.instr(F.col("e.normalized_mention"), F.col("a.normalized_alias")) > 0))
     .withColumn("edit_similarity", 1 - F.levenshtein("e.normalized_mention", "a.normalized_alias") /
         F.greatest(F.length("e.normalized_mention"), F.length("a.normalized_alias"), F.lit(1)))
-    .withColumn("match_confidence", F.when("exact_match", 1.0).when("contains_match", .92)
+    .withColumn("match_confidence", F.when(F.col("exact_match"), 1.0)
+        .when(F.col("contains_match"), .92)
         .otherwise(F.col("edit_similarity") * .85))
     .filter(F.col("match_confidence") >= .72))
 
