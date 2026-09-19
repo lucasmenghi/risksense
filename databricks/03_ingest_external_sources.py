@@ -295,4 +295,10 @@ for source, collector in jobs:
 
 print(f"Etapa 3: {total} registros processados; run_id={RUN_ID}")
 if spark.catalog.tableExists(RAW_TABLE):
-    display(spark.table(RAW_TABLE).groupBy("source_id").count().orderBy(F.desc("count")))
+    display(
+        spark.table(RAW_TABLE)
+        .filter(F.col("ingestion_run_id") == RUN_ID)
+        .groupBy("source_id")
+        .count()
+        .orderBy(F.desc("count"))
+    )
