@@ -13,6 +13,8 @@ posteriormente, cruzá-los com uma carteira autorizada de Grandes Contas.
 3. `databricks/03_ingest_external_sources.py`: feeds diretos de jornais,
    RSS/Atom configurável, GDELT opcional, Querido Diário opcional e
    CEIS/CNEP/CEPIM.
+   `databricks/03b_seed_synthetic_news.py`: dez notícias inteiramente fictícias,
+   vinculadas à carteira simulada, para demonstrar o pipeline ponta a ponta.
 4. `databricks/04_extract_events_llm.py`: extração estruturada em cinco tipos de evento.
 5. `databricks/05_match_portfolio.py`: resolução de empresa e cruzamento com a carteira.
 6. `databricks/06_prioritize_signals.py`: score explicável e tabela Gold.
@@ -31,6 +33,10 @@ Economia, UOL Economia, BBC News Brasil, Poder360, Canaltech e Tecnoblog.
 GDELT e Querido Diário ficam desabilitados por padrão e funcionam como fallback.
 Cada feed é processado e auditado isoladamente. Feeds Latin-1 sem declaração de
 encoding, como o UOL Economia, recebem fallback controlado para ISO-8859-1.
+
+Para executar a demonstração completa, rode a etapa `03b` depois da ingestão e
+antes da etapa 4. A fonte `SYNTHETIC_NEWS` é identificada como simulação em seu
+payload, configuração e URL, e não deve ser tratada como evidência real.
 
 ## Taxonomia inicial
 
