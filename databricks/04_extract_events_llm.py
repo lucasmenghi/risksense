@@ -4,6 +4,7 @@
 import json, re, uuid
 from datetime import datetime, timezone
 from databricks.sdk import WorkspaceClient
+from databricks.sdk.service.serving import ChatMessage, ChatMessageRole
 from pyspark.sql import functions as F, types as T
 
 
@@ -85,7 +86,10 @@ for row in documents:
     try:
         result = w.serving_endpoints.query(
             name=MODEL_ENDPOINT,
-            messages=[{"role": "user", "content": prompt_for(row)}],
+            messages=[ChatMessage(
+                role=ChatMessageRole.USER,
+                content=prompt_for(row),
+            )],
             temperature=0.0,
             max_tokens=900,
         )
