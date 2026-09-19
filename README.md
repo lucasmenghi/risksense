@@ -25,6 +25,8 @@ O conjunto padrão prioriza feeds diretos: Valor Econômico, Exame, Brazil
 Journal, Money Times, NeoFeed, InvestNews, E-Investidor, Forbes Brasil, G1
 Economia, UOL Economia, BBC News Brasil, Poder360, Canaltech e Tecnoblog.
 GDELT e Querido Diário ficam desabilitados por padrão e funcionam como fallback.
+Cada feed é processado e auditado isoladamente. Feeds Latin-1 sem declaração de
+encoding, como o UOL Economia, recebem fallback controlado para ISO-8859-1.
 
 Execute os scripts nessa ordem. Todos possuem widgets e usam, por padrão:
 
