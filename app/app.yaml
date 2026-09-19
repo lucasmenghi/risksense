@@ -1,0 +1,11 @@
+command: ['streamlit', 'run', 'app.py']
+env:
+  - name: 'DATABRICKS_WAREHOUSE_HTTP_PATH'
+    value: '/sql/1.0/warehouses/REPLACE_ME'
+  - name: 'DATABRICKS_PIPELINE_JOB_ID'
+    value: ''
+  - name: 'RISKSENSE_CATALOG'
+    value: 'workspace'
+  - name: 'RISKSENSE_GOLD_SCHEMA'
+    value: 'risksense_gold'
+
