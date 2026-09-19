@@ -1,7 +1,7 @@
 command: ['streamlit', 'run', 'app.py']
 env:
   - name: 'DATABRICKS_WAREHOUSE_HTTP_PATH'
-    value: '/sql/1.0/warehouses/REPLACE_ME'
+    value: '/sql/1.0/warehouses/216736e6e79cecb9'
   - name: 'DATABRICKS_PIPELINE_JOB_ID'
     value: ''
   - name: 'RISKSENSE_CATALOG'

@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 """Etapa 7: cria estrutura de validação humana e visão consolidada."""
 
 
@@ -22,10 +26,13 @@ CREATE TABLE IF NOT EXISTS {GOLD}.analyst_reviews (
   analyst_comment STRING,
   reviewed_by STRING,
   reviewed_at TIMESTAMP NOT NULL,
-  model_version STRING,
-  CONSTRAINT valid_decision CHECK (decision IN ('RELEVANT','IRRELEVANT','WRONG_COMPANY','DUPLICATE'))
+  model_version STRING
 ) USING DELTA
 """)
+try:
+    spark.sql(f"ALTER TABLE {GOLD}.analyst_reviews ADD CONSTRAINT valid_decision CHECK (decision IN ('RELEVANT','IRRELEVANT','WRONG_COMPANY','DUPLICATE'))")
+except Exception:
+    pass  # constraint already exists
 spark.sql(f"""
 CREATE OR REPLACE VIEW {GOLD}.review_queue AS
 SELECT a.*, r.decision, r.analyst_comment, r.reviewed_by, r.reviewed_at

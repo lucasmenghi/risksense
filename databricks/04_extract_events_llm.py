@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 """Etapa 4: classifica documentos e extrai eventos estruturados com LLM."""
 
 import json, re, uuid

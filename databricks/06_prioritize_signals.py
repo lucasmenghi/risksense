@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 """Etapa 6: calcula prioridade explicável e cria fila Gold de alertas."""
 
 from pyspark.sql import functions as F
@@ -58,4 +62,3 @@ signals.write.format("delta").mode("overwrite").option("overwriteSchema", "true"
 print(f"Etapa 6: {signals.count()} sinais priorizados em {TARGET}")
 display(signals.select("alert_id", "account_id", "event_type", "priority_level", "priority_score",
                        "source_score", "entity_score", "event_score", "exposure_score", "internal_score"))
-

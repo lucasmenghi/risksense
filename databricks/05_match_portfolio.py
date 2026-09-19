@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 """Etapa 5: resolve empresas citadas e cruza eventos com Grandes Contas."""
 
 import re, unicodedata
@@ -46,8 +50,8 @@ candidates = (events.alias("e").crossJoin(F.broadcast(aliases.alias("a")))
 
 window = Window.partitionBy("event_id", "mentioned_company").orderBy(F.desc("match_confidence"), F.desc("a.confidence"))
 best = (candidates.withColumn("candidate_rank", F.row_number().over(window)).filter("candidate_rank = 1")
-    .select("e.*", F.col("a.company_id").alias("matched_company_id"), "mentioned_company",
-            "normalized_mention", "match_confidence", "alias", "alias_type"))
+    .select("e.*", F.col("a.company_id").alias("matched_company_id"),
+            "match_confidence", "alias", "alias_type"))
 
 accounts = spark.table(f"{CORE}.large_accounts").select(
     "account_id", "company_id", "economic_group_id", "cnpj", "sector", "tpv_30d", "tpv_trend_90d",

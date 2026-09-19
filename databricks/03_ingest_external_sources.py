@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 """Etapa 3: ingestão ampla sem fontes CSV.
 
 Conectores: GDELT, Google News RSS, RSS/Atom configurável, Querido Diário e
@@ -302,3 +306,9 @@ if spark.catalog.tableExists(RAW_TABLE):
         .count()
         .orderBy(F.desc("count"))
     )
+
+# COMMAND ----------
+
+# MAGIC %sql 
+# MAGIC select * from risksense_bronze.raw_documents
+# MAGIC where source_id <> 'CVM_IPE'

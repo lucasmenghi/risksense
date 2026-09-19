@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 """Etapa 3b: cria notícias fictícias para demonstrar o pipeline ponta a ponta."""
 
 import hashlib
