@@ -10,7 +10,15 @@ posteriormente, cruzá-los com uma carteira autorizada de Grandes Contas.
 
 1. `databricks/01_generate_large_accounts.py`: carteira sintética.
 2. `databricks/02_build_company_master.py`: empresas, aliases e grupos econômicos.
-3. `databricks/03_ingest_external_sources.py`: GDELT, CVM/IPE e CEIS/CNEP.
+3. `databricks/03_ingest_external_sources.py`: GDELT, Google News RSS,
+   RSS/Atom configurável, Querido Diário e CEIS/CNEP/CEPIM.
+
+A etapa 3 não consome fontes CSV. Feeds de RI, reguladores e APIs comerciais
+podem ser habilitados em `external_source_config` após validação de endpoint,
+licença e credencial.
+
+O Google News RSS fica desabilitado por padrão devido às restrições de uso do
+feed. Habilite `enable_news_rss=true` apenas após autorização jurídica/licença.
 
 Execute os scripts nessa ordem. Todos possuem widgets e usam, por padrão:
 
