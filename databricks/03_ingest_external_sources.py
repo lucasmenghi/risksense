@@ -99,7 +99,16 @@ def request(url, params=None, headers=None):
 
 
 def parse_feed(content, source_id, source_type, company_id=None, alias=None):
-    root, output = ET.fromstring(content), []
+    try:
+        root = ET.fromstring(content)
+    except ET.ParseError as first_error:
+        # Alguns feeds brasileiros, como UOL Economia, entregam bytes Latin-1
+        # sem declarar o encoding no XML. O fallback é restrito a erro de parse.
+        try:
+            root = ET.fromstring(content.decode("iso-8859-1"))
+        except Exception:
+            raise first_error
+    output = []
     items = root.findall(".//item") or root.findall(".//{http://www.w3.org/2005/Atom}entry")
     for item in items[:MAX_RESULTS]:
         def value(*tags):
@@ -152,7 +161,16 @@ def collect_custom_rss(configs):
     output = []
     for cfg in configs:
         if cfg["connector_type"] == "RSS" and cfg["enabled"] and cfg["base_url"]:
-            output.extend(parse_feed(request(cfg["base_url"]).content, cfg["source_id"], cfg["source_type"]))
+            started = datetime.now(timezone.utc)
+            try:
+                records = parse_feed(request(cfg["base_url"]).content, cfg["source_id"], cfg["source_type"])
+                output.extend(records)
+                log_run(cfg["source_id"], started, "SUCCESS", len(records))
+                print(f"{cfg['source_id']}: {len(records)} itens RSS")
+            except Exception as error:
+                message = f"{type(error).__name__}: {str(error)[:1500]}"
+                log_run(cfg["source_id"], started, "FAILED", 0, message)
+                print(f"{cfg['source_id']}: ignorado nesta execução - {message}")
     return output
 
 
